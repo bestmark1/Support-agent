@@ -34,22 +34,5 @@ services:
       - "8010:8000"
     restart: unless-stopped
 
-  support_agent:
-    build:
-      context: .
-      dockerfile: Dockerfile.support_agent
-    container_name: fitmentor-support-agent
-    depends_on:
-      postgres:
-        condition: service_healthy
-      kb_api:
-        condition: service_started
-    env_file:
-      - .env
-    environment:
-      DATABASE_URL: postgresql+asyncpg://postgres:postgres@postgres:5432/fitmentor
-      KB_API_BASE_URL: http://kb_api:8000
-    restart: unless-stopped
-
 volumes:
   postgres_data:

@@ -29,28 +29,13 @@ docker compose exec -T postgres psql -U postgres -d fitmentor < migrations/0001_
 ## Check Health
 
 ```bash
-curl http://127.0.0.1:8000/kb/health
+curl http://127.0.0.1:8010/kb/health
 ```
 
 Expected response:
 
 ```json
 {"status":"ok"}
-```
-
-## Start Support Agent
-
-After `.env` contains:
-
-- `AI_GATEWAY_*`
-- `TELEGRAM_SUPPORT_BOT_TOKEN`
-- `TELEGRAM_SUPPORT_BOT_USERNAME`
-
-run:
-
-```bash
-docker compose up --build -d support_agent
-docker compose logs -f support_agent
 ```
 
 ## Seed Initial Knowledge
@@ -74,7 +59,7 @@ This inserts the first approved records for:
 
 ## Backfill Embeddings
 
-After you set `EMBEDDING_API_KEY` in `.env`, run:
+After embedding settings are configured in `.env`, run:
 
 ```bash
 make backfill-embeddings
@@ -104,4 +89,4 @@ docker compose down
 ## Notes
 
 - `kb_api` uses `DATABASE_URL=postgresql+asyncpg://postgres:postgres@postgres:5432/fitmentor`
-- external services like Telegram and the AI gateway are not required yet for this local step
+- Telegram transport is not part of this local step

@@ -4,18 +4,16 @@ Monorepo for the FitMentor autonomous support agent.
 
 ## Services
 
-- `support_agent`: Telegram support workflow
 - `kb_api`: knowledge retrieval and write-safe update proposal API
 - `partnership_research`: channel discovery and lead scoring
 
 ## Local Setup
 
 1. Copy `.env.example` to `.env`.
-2. Fill in Supabase, AI gateway, and Telegram credentials.
+2. Fill in database, embedding, and optional gateway settings.
 3. Start local infra with Docker Compose.
 4. Apply SQL from `migrations/`.
 5. Start `kb_api`.
-6. Start `support_agent`.
 
 ### Quick Start
 
@@ -24,7 +22,7 @@ cp .env.example .env
 docker compose up --build -d
 docker compose exec -T postgres psql -U postgres -d fitmentor < migrations/0001_init.sql
 docker compose exec -T postgres psql -U postgres -d fitmentor < migrations/0002_seed_approved_knowledge.sql
-curl http://127.0.0.1:8000/kb/health
+curl http://127.0.0.1:8010/kb/health
 ```
 
 Or use:
@@ -35,13 +33,6 @@ make migrate
 make seed
 make backfill-embeddings
 make health
-```
-
-To start the support runtime after `.env` is configured:
-
-```bash
-docker compose up --build -d support_agent
-docker compose logs -f support_agent
 ```
 
 ## Current Status
@@ -63,7 +54,7 @@ make backfill-embeddings
 
 ## Safe Write Path
 
-`support_agent` does not write directly into approved knowledge.
+The agent layer does not write directly into approved knowledge.
 
 Unknown questions go through:
 
@@ -73,7 +64,7 @@ Unknown questions go through:
 
 ## Support Logging
 
-Support traffic is logged through `kb_api`, not by direct table access from the bot runtime.
+Support traffic is logged through `kb_api`, not by direct table access from the agent runtime.
 
 The current flow uses:
 

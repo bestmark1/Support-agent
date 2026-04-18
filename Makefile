@@ -7,9 +7,6 @@ down:
 logs:
 	docker compose logs -f kb_api
 
-logs-support:
-	docker compose logs -f support_agent
-
 migrate:
 	docker compose exec -T postgres psql -U postgres -d fitmentor < migrations/0001_init.sql
 	docker compose exec -T postgres psql -U postgres -d fitmentor < migrations/0003_vector_index.sql

@@ -3,11 +3,9 @@
 ## Support Flow
 
 1. Receive Telegram message.
-2. Search approved knowledge.
-3. Assemble prompt context.
-4. Call AI gateway.
-5. Reply.
-6. If needed, create `proposed_updates`.
+2. `OpenCrabs` searches approved knowledge through `kb_api`.
+3. `OpenCrabs` decides on the answer using `Codex OAuth`.
+4. `kb_api` stores logs and `proposed_updates`.
 
 ## Safe Update Flow
 
@@ -17,7 +15,7 @@
 
 ## Support Logging Flow
 
-1. `support_agent` ensures a thread through `kb_api`.
+1. `OpenCrabs` ensures a thread through `kb_api`.
 2. User message is logged through `kb_api`.
 3. Knowledge is fetched through `kb_api`.
 4. Assistant reply is logged through `kb_api`.
