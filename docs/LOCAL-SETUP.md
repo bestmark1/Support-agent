@@ -5,7 +5,7 @@
 Local Docker runtime for:
 
 - `postgres` with `pgvector`
-- `kb_api` on `http://127.0.0.1:8000`
+- `kb_api` on `http://127.0.0.1:8010`
 
 This is enough to:
 
@@ -36,6 +36,21 @@ Expected response:
 
 ```json
 {"status":"ok"}
+```
+
+## Start Support Agent
+
+After `.env` contains:
+
+- `AI_GATEWAY_*`
+- `TELEGRAM_SUPPORT_BOT_TOKEN`
+- `TELEGRAM_SUPPORT_BOT_USERNAME`
+
+run:
+
+```bash
+docker compose up --build -d support_agent
+docker compose logs -f support_agent
 ```
 
 ## Seed Initial Knowledge

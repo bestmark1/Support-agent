@@ -37,6 +37,13 @@ make backfill-embeddings
 make health
 ```
 
+To start the support runtime after `.env` is configured:
+
+```bash
+docker compose up --build -d support_agent
+docker compose logs -f support_agent
+```
+
 ## Current Status
 
 This repository contains the initial scaffold and first database migration.
