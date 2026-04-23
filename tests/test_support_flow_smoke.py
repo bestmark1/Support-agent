@@ -70,7 +70,7 @@ class SupportFlowSmokeTest(unittest.TestCase):
 
     def test_premium_entitlement_reply_uses_human_wording(self) -> None:
         reply_text, confident = self.support_flow.build_reply(
-            "После оплаты Premium у меня остался старый лимит AI-сообщений. Что делать?",
+            "После оплаты Premium часть функций не обновилась. Что делать?",
             "ru",
             [],
             {"diagnosis": "subscription_active"},
@@ -78,6 +78,18 @@ class SupportFlowSmokeTest(unittest.TestCase):
         self.assertIn("Premium уже активен", reply_text)
         self.assertIn("какой именно лимит или функция не обновились", reply_text)
         self.assertNotIn("Premium-прав", reply_text)
+        self.assertFalse(confident)
+
+    def test_premium_entitlement_ai_limit_followup_is_specific(self) -> None:
+        reply_text, confident = self.support_flow.build_reply(
+            "Не обновился лимит AI-сообщений после оплаты Premium.",
+            "ru",
+            [],
+            {"diagnosis": "subscription_active"},
+        )
+        self.assertIn("заново откройте бота", reply_text)
+        self.assertIn("пришлите скриншот", reply_text)
+        self.assertIn("лимит AI-сообщений", reply_text)
         self.assertFalse(confident)
 
     def test_subscription_activation_missing_access_reply_is_clearer(self) -> None:

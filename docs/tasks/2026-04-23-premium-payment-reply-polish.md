@@ -68,6 +68,8 @@ The goal is:
   - payment/access manual-check replies now use clearer support phrasing
   - refined `premium_entitlement` active-Premium reply to ask which exact limit or feature did not update after payment
   - smoke test now checks for the clarification prompt instead of a generic manual-review sentence
+  - added specific follow-up handling for `AI message limit did not update` after Premium payment
+  - smoke suite now covers both generic Premium clarification and the AI-limit-specific follow-up reply
 
 ## Follow-Ups
 

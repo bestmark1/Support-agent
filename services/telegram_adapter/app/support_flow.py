@@ -321,6 +321,32 @@ def _is_premium_entitlement_issue(text: str, language: str) -> bool:
     return has_premium_context and has_access_problem
 
 
+def _extract_premium_feature_hint(text: str, language: str) -> str | None:
+    normalized = _normalized(text)
+    if not normalized:
+        return None
+
+    if language == "en":
+        if any(token in normalized for token in ("ai limit", "ai message limit", "message limit", "ai messages")):
+            return "ai_limit"
+        if any(token in normalized for token in ("weekly report", "weekly reports")):
+            return "weekly_report"
+        if any(token in normalized for token in ("recipe", "recipes")):
+            return "recipes"
+        return None
+
+    if any(
+        token in normalized
+        for token in ("лимит ai", "лимит ai-сообщений", "лимит сообщений", "ai-сообщений", "ai сообщений")
+    ):
+        return "ai_limit"
+    if "weekly report" in normalized:
+        return "weekly_report"
+    if any(token in normalized for token in ("рецепт", "рецепты")):
+        return "recipes"
+    return None
+
+
 def _is_priority_support(support_check: dict[str, Any] | None) -> bool:
     subscription = (support_check or {}).get("subscription") or {}
     effective_tier = _normalized(str(subscription.get("effective_tier") or ""))
@@ -1763,7 +1789,41 @@ def build_reply(
 
     if _is_premium_entitlement_issue(user_text, language):
         diagnosis = str((support_check or {}).get("diagnosis") or "")
+        feature_hint = _extract_premium_feature_hint(user_text, language)
         if diagnosis in {"payment_confirmed_and_access_granted", "subscription_active"}:
+            if feature_hint == "ai_limit":
+                return (
+                    (
+                        "I checked the status: Premium is already active for this Telegram account. If the AI message limit did not update after payment, please reopen the bot and check the limit once more. If it is still old, send a screenshot and we will verify the limit refresh on our side."
+                    )
+                    if language == "en"
+                    else (
+                        "Я проверил статус: для этого Telegram-аккаунта Premium уже активен. Если после оплаты не обновился лимит AI-сообщений, пожалуйста, заново откройте бота и проверьте лимит ещё раз. Если лимит всё ещё старый, пришлите скриншот, и мы проверим обновление со своей стороны."
+                    ),
+                    False,
+                )
+            if feature_hint == "weekly_report":
+                return (
+                    (
+                        "I checked the status: Premium is already active for this Telegram account. If the weekly report is still unavailable, please send a screenshot or describe where exactly it is missing, and we will verify it on our side."
+                    )
+                    if language == "en"
+                    else (
+                        "Я проверил статус: для этого Telegram-аккаунта Premium уже активен. Если weekly report всё ещё недоступен, пришлите скриншот или напишите, где именно он не отображается, и мы проверим это со своей стороны."
+                    ),
+                    False,
+                )
+            if feature_hint == "recipes":
+                return (
+                    (
+                        "I checked the status: Premium is already active for this Telegram account. If recipes are still unavailable, please send a screenshot or describe where exactly they are missing, and we will verify it on our side."
+                    )
+                    if language == "en"
+                    else (
+                        "Я проверил статус: для этого Telegram-аккаунта Premium уже активен. Если рецепты всё ещё недоступны, пришлите скриншот или напишите, где именно они не открываются, и мы проверим это со своей стороны."
+                    ),
+                    False,
+                )
             return (
                 (
                     "I checked the status: Premium is already active for this Telegram account. Please tell me which exact limit or feature did not update after payment, and we will check it on our side."
