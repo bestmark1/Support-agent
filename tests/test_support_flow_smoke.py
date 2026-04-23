@@ -62,6 +62,12 @@ class SupportFlowSmokeTest(unittest.TestCase):
         self.assertIn("что делать дальше", reply_text)
         self.assertFalse(confident)
 
+    def test_payment_phrase_oplata_ne_prohodit_hits_payment_branch(self) -> None:
+        reply_text, confident = self.support_flow.build_reply("Оплата не проходит. Что делать?", "ru", [])
+        self.assertIn("дату попытки оплаты", reply_text)
+        self.assertIn("что делать дальше", reply_text)
+        self.assertFalse(confident)
+
     def test_premium_entitlement_reply_uses_human_wording(self) -> None:
         reply_text, confident = self.support_flow.build_reply(
             "После оплаты Premium у меня остался старый лимит AI-сообщений. Что делать?",
@@ -85,3 +91,13 @@ class SupportFlowSmokeTest(unittest.TestCase):
         self.assertIn("доступ ещё не обновился", reply_text)
         self.assertIn("проверим это вручную", reply_text)
         self.assertFalse(confident)
+
+    def test_known_premium_case_does_not_create_candidate(self) -> None:
+        should_create = self.support_flow.should_create_candidate_knowledge(
+            user_text="После оплаты Premium у меня остался старый лимит AI-сообщений. Что делать?",
+            reply_text="Я проверил статус: для этого Telegram-аккаунта Premium уже активен, но лимиты или Premium-функции могли ещё не обновиться. Мы проверим это вручную со своей стороны.",
+            language="ru",
+            kb_items=[],
+            support_check={"diagnosis": "subscription_active"},
+        )
+        self.assertFalse(should_create)

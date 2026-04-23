@@ -78,6 +78,7 @@ def _is_payment_failed(text: str, language: str) -> bool:
         text,
         (
             "оплата не прошла",
+            "оплата не проходит",
             "не могу оплатить",
             "не получается оплатить",
             "платеж не прошел",
@@ -356,6 +357,20 @@ def should_create_candidate_knowledge(
     if not normalized_user or not normalized_reply:
         return False
     if kb_items:
+        return False
+    if any(
+        (
+            _is_payment_failed(normalized_user, language),
+            _is_duplicate_charge(normalized_user, language),
+            _is_refund_request(normalized_user, language),
+            _is_how_to_subscribe(normalized_user, language),
+            _is_how_to_cancel(normalized_user, language),
+            _is_subscription_status_check(normalized_user, language),
+            _is_subscription_activation_issue(user_text, language),
+            _is_premium_entitlement_issue(user_text, language),
+            _is_human_support_request(normalized_user, language),
+        )
+    ):
         return False
     if _is_thanks(normalized_user, language) or _is_goodbye(normalized_user, language):
         return False
