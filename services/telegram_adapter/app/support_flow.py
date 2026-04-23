@@ -1913,12 +1913,12 @@ def build_reply(
 
     if language == "en":
         return (
-            "I do not yet see a clear approved answer for this case. Please briefly tell me what happened. If this is about payment or access, include your Telegram account and any relevant payment details.",
+            "What is your question? I will try to help. If this is about payment or access, include your Telegram account and any relevant payment details.",
             False,
         )
 
     return (
-        "Я пока не вижу точного утверждённого ответа для этого случая. Коротко напишите, что произошло. Если вопрос связан с оплатой или доступом, сразу укажите Telegram-аккаунт и данные платежа, если они есть.",
+        "Какой у вас вопрос? Постараюсь помочь. Если это про оплату или доступ, сразу укажите Telegram-аккаунт и данные платежа, если они есть.",
         False,
     )
 
