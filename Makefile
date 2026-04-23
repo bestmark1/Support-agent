@@ -20,3 +20,6 @@ backfill-embeddings:
 
 health:
 	curl -s http://127.0.0.1:8010/kb/health
+
+test-smoke:
+	python3 -m unittest tests.test_listener_guard tests.test_support_flow_smoke
