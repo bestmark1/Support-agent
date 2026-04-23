@@ -92,6 +92,30 @@ class SupportFlowSmokeTest(unittest.TestCase):
         self.assertIn("лимит AI-сообщений", reply_text)
         self.assertFalse(confident)
 
+    def test_premium_entitlement_weekly_report_followup_is_specific(self) -> None:
+        reply_text, confident = self.support_flow.build_reply(
+            "После оплаты Premium weekly report всё ещё недоступен.",
+            "ru",
+            [],
+            {"diagnosis": "subscription_active"},
+        )
+        self.assertIn("weekly report", reply_text)
+        self.assertIn("пришлите скриншот", reply_text)
+        self.assertIn("где именно он не отображается", reply_text)
+        self.assertFalse(confident)
+
+    def test_premium_entitlement_recipes_followup_is_specific(self) -> None:
+        reply_text, confident = self.support_flow.build_reply(
+            "После оплаты Premium рецепты всё ещё недоступны.",
+            "ru",
+            [],
+            {"diagnosis": "subscription_active"},
+        )
+        self.assertIn("рецепты", reply_text)
+        self.assertIn("пришлите скриншот", reply_text)
+        self.assertIn("где именно они не открываются", reply_text)
+        self.assertFalse(confident)
+
     def test_subscription_activation_missing_access_reply_is_clearer(self) -> None:
         reply_text, confident = self.support_flow.build_reply(
             "Оплатил, но подписка не активировалась",
