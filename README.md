@@ -47,6 +47,7 @@ Key runtime documents:
 - `docs/OPENCRABS-RUNBOOK.md`
 - `docs/TELEGRAM-AGENT-IMPLEMENTATION-PLAN.md`
 - `docs/IDENTITY.md`
+- `docs/VPS-UPDATE-RUNBOOK.md`
 
 ## Retrieval
 
