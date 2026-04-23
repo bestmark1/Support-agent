@@ -52,7 +52,7 @@ class SupportFlowSmokeTest(unittest.TestCase):
 
     def test_generic_unknown_case_uses_neutral_fallback(self) -> None:
         reply_text, confident = self.support_flow.build_reply("У меня другой вопрос.", "ru", [])
-        self.assertIn("Кратко уточните, что именно произошло", reply_text)
+        self.assertIn("Коротко напишите, что произошло", reply_text)
         self.assertNotIn("дату платежа", reply_text)
         self.assertFalse(confident)
 
