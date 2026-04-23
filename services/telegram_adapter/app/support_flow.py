@@ -792,11 +792,46 @@ def _is_operator_close_last_manual_case_request(text: str) -> bool:
         token in normalized
         for token in (
             "закрой последний ручной кейс",
+            "закрой последний кейс",
+            "закрой текущий кейс",
+            "закрой этот кейс",
             "закрой кейс",
             "пометь последний кейс как решенный",
             "пометь кейс как решенный",
             "resolve last manual case",
             "close last manual case",
+            "close last case",
+            "close current case",
+        )
+    )
+
+
+def _is_operator_reopen_last_case_request(text: str) -> bool:
+    normalized = _normalized(text)
+    return any(
+        token in normalized
+        for token in (
+            "верни последний кейс в manual review",
+            "верни кейс в manual review",
+            "снова пометь как ручную проверку",
+            "снова пометь как manual review",
+            "reopen last case",
+            "return last case to manual review",
+            "mark last case as manual review",
+        )
+    )
+
+
+def _is_operator_last_case_id_request(text: str) -> bool:
+    normalized = _normalized(text)
+    return any(
+        token in normalized
+        for token in (
+            "покажи id последнего кейса",
+            "дай id последнего кейса",
+            "id последнего кейса",
+            "show id of the last case",
+            "last case id",
         )
     )
 
@@ -871,6 +906,8 @@ def _is_explicit_operator_summary_intent(text: str) -> bool:
             _is_operator_recent_premium_cases_request,
             _is_operator_recent_payment_cases_request,
             _is_operator_close_last_manual_case_request,
+            _is_operator_reopen_last_case_request,
+            _is_operator_last_case_id_request,
             _is_operator_last_candidate_full_request,
             _is_operator_last_candidate_request,
             _is_operator_payment_only_request,
@@ -1417,6 +1454,17 @@ def build_operator_reply(
     return " ".join(lines)
 
 
+def _latest_actionable_thread(summary: dict[str, Any]) -> dict[str, Any] | None:
+    recent_threads = list(summary.get("recent_threads") or [])
+    for item in recent_threads:
+        case_status = str(item.get("case_status") or "")
+        if case_status in {"open", "manual_review"}:
+            return item
+    if recent_threads:
+        return recent_threads[0]
+    return None
+
+
 async def maybe_handle_operator_request(
     tg_client: TelegramClient,
     message: Message,
@@ -1544,16 +1592,48 @@ async def maybe_handle_operator_request(
 
     async with httpx.AsyncClient() as kb_client:
         summary = await kb_get(kb_client, "/kb/support-summary", {"days": 1, "include_tests": False})
-        if _is_operator_close_last_manual_case_request(operator_text):
-            manual_review_threads = list(summary.get("manual_review_threads") or [])
-            if not manual_review_threads:
+        if _is_operator_last_case_id_request(operator_text):
+            latest = _latest_actionable_thread(summary)
+            if latest is None:
                 reply_text = (
-                    "Right now I do not see a manual-review case to close."
+                    "Right now I do not see a recent case with an ID to show."
                     if language == "en"
-                    else "Сейчас я не вижу ручного кейса, который можно закрыть."
+                    else "Сейчас я не вижу свежего кейса, для которого можно показать ID."
                 )
             else:
-                latest = manual_review_threads[0]
+                thread_id = str(latest.get("id") or "").strip()
+                snippet = str(latest.get("latest_user_message") or "").strip()
+                if len(snippet) > 120:
+                    snippet = snippet[:117] + "..."
+                reply_text = (
+                    f"Latest case ID: {thread_id}\n{snippet or 'No user text captured yet.'}"
+                    if language == "en"
+                    else f"ID последнего кейса: {thread_id}\n{snippet or 'Текст пользователя пока не зафиксирован.'}"
+                )
+            sent = await _send_reply_for_message(
+                tg_client,
+                message,
+                reply_text=reply_text,
+            )
+            return {
+                "ok": True,
+                "mode": "operator_mode",
+                "message_id": message.id,
+                "summary": summary,
+                "reply_text": reply_text,
+                "sent": True,
+                "sent_message": sent,
+            }
+
+        if _is_operator_close_last_manual_case_request(operator_text):
+            latest = _latest_actionable_thread(summary)
+            if latest is None:
+                reply_text = (
+                    "Right now I do not see a recent case to close."
+                    if language == "en"
+                    else "Сейчас я не вижу свежего кейса, который можно закрыть."
+                )
+            else:
                 status_update = await kb_post(
                     kb_client,
                     "/kb/support-threads/status",
@@ -1570,7 +1650,49 @@ async def maybe_handle_operator_request(
                 reply_text = (
                     f"Closed the latest manual-review case: {snippet or str(status_update['thread_id'])}"
                     if language == "en"
-                    else f"Закрыл последний ручной кейс: {snippet or str(status_update['thread_id'])}"
+                    else f"Закрыл последний кейс: {snippet or str(status_update['thread_id'])}"
+                )
+            sent = await _send_reply_for_message(
+                tg_client,
+                message,
+                reply_text=reply_text,
+            )
+            return {
+                "ok": True,
+                "mode": "operator_mode",
+                "message_id": message.id,
+                "summary": summary,
+                "reply_text": reply_text,
+                "sent": True,
+                "sent_message": sent,
+            }
+
+        if _is_operator_reopen_last_case_request(operator_text):
+            latest = _latest_actionable_thread(summary)
+            if latest is None:
+                reply_text = (
+                    "Right now I do not see a recent case to return to manual review."
+                    if language == "en"
+                    else "Сейчас я не вижу свежего кейса, который можно вернуть в manual review."
+                )
+            else:
+                status_update = await kb_post(
+                    kb_client,
+                    "/kb/support-threads/status",
+                    {
+                        "thread_id": str(latest["id"]),
+                        "case_status": "manual_review",
+                        "resolution_note": "Returned to manual review by owner in operator flow.",
+                        "reviewed_by": f"telegram:{sender_id}",
+                    },
+                )
+                snippet = str(latest.get("latest_user_message") or "").strip()
+                if len(snippet) > 120:
+                    snippet = snippet[:117] + "..."
+                reply_text = (
+                    f"Returned the latest case to manual review: {snippet or str(status_update['thread_id'])}"
+                    if language == "en"
+                    else f"Вернул последний кейс в manual review: {snippet or str(status_update['thread_id'])}"
                 )
             sent = await _send_reply_for_message(
                 tg_client,

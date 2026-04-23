@@ -150,3 +150,12 @@ class SupportFlowSmokeTest(unittest.TestCase):
             "ru",
         )
         self.assertTrue(is_support_like)
+
+    def test_operator_close_last_case_request_is_detected(self) -> None:
+        self.assertTrue(self.support_flow._is_operator_close_last_manual_case_request("Закрой последний кейс"))
+
+    def test_operator_reopen_last_case_request_is_detected(self) -> None:
+        self.assertTrue(self.support_flow._is_operator_reopen_last_case_request("Верни последний кейс в manual review"))
+
+    def test_operator_last_case_id_request_is_detected(self) -> None:
+        self.assertTrue(self.support_flow._is_operator_last_case_id_request("Покажи ID последнего кейса"))
