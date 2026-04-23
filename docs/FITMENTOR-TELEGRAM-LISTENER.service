@@ -1,0 +1,18 @@
+[Unit]
+Description=FitMentor Telegram Support Listener
+After=network-online.target docker.service opencrabs.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/agent/workspace/fitmentor-agent
+Environment=PYTHONPATH=/opt/agent/workspace/fitmentor-agent
+ExecStart=/opt/agent/workspace/fitmentor-agent/.venv/bin/python /opt/agent/workspace/fitmentor-agent/scripts/support_listener.py
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

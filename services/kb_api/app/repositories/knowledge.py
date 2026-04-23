@@ -3,13 +3,18 @@ from sqlalchemy import text
 from packages.common.db.session import get_session
 
 
-async def fetch_approved_knowledge(query: str, limit: int) -> list[dict[str, object]]:
+async def fetch_approved_knowledge(
+    query: str,
+    limit: int,
+    language: str | None = None,
+) -> list[dict[str, object]]:
     async with get_session() as session:
         sql = text(
             """
-            select id, category, title, content
+            select id, category, title, content, language, canonical_key
             from knowledge_base
             where is_approved = true
+              and (cast(:language as text) is null or language = cast(:language as text))
               and (
                 coalesce(title, '') ilike :needle
                 or content ilike :needle
@@ -20,7 +25,7 @@ async def fetch_approved_knowledge(query: str, limit: int) -> list[dict[str, obj
         )
         result = await session.execute(
             sql,
-            {"needle": f"%{query}%", "limit": limit},
+            {"needle": f"%{query}%", "limit": limit, "language": language},
         )
         return [dict(row._mapping) for row in result]
 
@@ -28,6 +33,7 @@ async def fetch_approved_knowledge(query: str, limit: int) -> list[dict[str, obj
 async def fetch_approved_knowledge_by_vector(
     embedding: list[float],
     limit: int,
+    language: str | None = None,
 ) -> list[dict[str, object]]:
     async with get_session() as session:
         sql = text(
@@ -37,17 +43,23 @@ async def fetch_approved_knowledge_by_vector(
               kb.category,
               kb.title,
               kb.content,
+              kb.language,
+              kb.canonical_key,
               1 - (ke.embedding <=> cast(:embedding as vector)) as similarity
             from knowledge_embeddings ke
             join knowledge_base kb on kb.id = ke.knowledge_id
             where kb.is_approved = true
+              and (
+                cast(:language as text) is null
+                or kb.language = cast(:language as text)
+              )
             order by ke.embedding <=> cast(:embedding as vector)
             limit :limit
             """
         )
         result = await session.execute(
             sql,
-            {"embedding": str(embedding), "limit": limit},
+            {"embedding": str(embedding), "limit": limit, "language": language},
         )
         return [dict(row._mapping) for row in result]
 

@@ -5,7 +5,9 @@ Monorepo for the FitMentor autonomous support agent.
 ## Services
 
 - `kb_api`: knowledge retrieval and write-safe update proposal API
+- `telegram_adapter`: real-user Telegram transport and support flow
 - `partnership_research`: channel discovery and lead scoring
+- `telegram_outreach_search.py`: Telegram discovery script for outreach shortlist building
 
 ## Local Setup
 
@@ -35,9 +37,16 @@ make backfill-embeddings
 make health
 ```
 
-## Current Status
+## Runtime Notes
 
-This repository contains the initial scaffold and first database migration.
+The repository contains both the support data plane and the Telegram-facing runtime pieces used on the VPS.
+
+Key runtime documents:
+
+- `docs/ARCHITECTURE.md`
+- `docs/OPENCRABS-RUNBOOK.md`
+- `docs/TELEGRAM-AGENT-IMPLEMENTATION-PLAN.md`
+- `docs/IDENTITY.md`
 
 ## Retrieval
 
@@ -71,3 +80,23 @@ The current flow uses:
 - `POST /kb/support-threads`
 - `POST /kb/support-messages`
 - `GET /kb/search`
+
+## Telegram Outreach V1
+
+The repository now includes a first-pass Telegram outreach discovery script:
+
+```bash
+env PYTHONPATH=/opt/agent/workspace/fitmentor-agent python /opt/agent/workspace/fitmentor-agent/scripts/telegram_outreach_search.py
+```
+
+See:
+
+- [docs/TELEGRAM-OUTREACH-V1.md](docs/TELEGRAM-OUTREACH-V1.md)
+
+## Workflow
+
+This project uses a lightweight task workflow for any non-trivial change.
+
+- `docs/FORKFLOW-LIGHT.md`: project workflow and release gates
+- `docs/tasks/TEMPLATE.md`: task artifact template
+- `docs/tasks/2026-04-23-repo-refresh-and-forkflow-adoption.md`: first recorded task using the workflow

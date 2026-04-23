@@ -1,5 +1,7 @@
 # OpenCrabs Integration
 
+See also: [OPENCRABS-RUNBOOK.md](./OPENCRABS-RUNBOOK.md) for the real host paths, service names, and recovery commands used on the VPS.
+
 ## Role Of OpenCrabs
 
 OpenCrabs is the top-level agent runtime.

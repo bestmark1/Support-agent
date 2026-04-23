@@ -1,0 +1,294 @@
+[[tools]]
+name = "search_knowledge"
+description = "Search approved knowledge base entries for support answers"
+executor = "shell"
+command = """python3 /opt/agent/workspace/fitmentor-agent/scripts/opencrabs_kb_bridge.py search_knowledge <<'EOF'
+{"query":"{{query}}","limit":{{limit}},"language":"{{language}}"}
+EOF"""
+timeout_secs = 15
+requires_approval = false
+enabled = true
+
+[[tools.params]]
+name = "query"
+type = "string"
+description = "User question or search query"
+required = true
+
+[[tools.params]]
+name = "limit"
+type = "integer"
+description = "Maximum number of KB results to return"
+required = false
+default = 5
+
+[[tools.params]]
+name = "language"
+type = "string"
+description = "Preferred answer language: ru or en"
+required = false
+default = "ru"
+
+[[tools]]
+name = "create_proposed_update"
+description = "Create a proposed knowledge base update for weak or missing support answers"
+executor = "shell"
+command = """python3 /opt/agent/workspace/fitmentor-agent/scripts/opencrabs_kb_bridge.py create_proposed_update <<'EOF'
+{"source":"{{source}}","suggested_category":"{{suggested_category}}","suggested_title":"{{suggested_title}}","suggested_content":"{{suggested_content}}","reason":"{{reason}}","evidence":{{evidence}}}
+EOF"""
+timeout_secs = 15
+requires_approval = false
+enabled = true
+
+[[tools.params]]
+name = "source"
+type = "string"
+description = "Source system creating the proposal"
+required = false
+default = "opencrabs"
+
+[[tools.params]]
+name = "suggested_category"
+type = "string"
+description = "One of: policy, faq, product, tone"
+required = true
+
+[[tools.params]]
+name = "suggested_title"
+type = "string"
+description = "Short title for the proposed KB update"
+required = true
+
+[[tools.params]]
+name = "suggested_content"
+type = "string"
+description = "Draft KB content to be reviewed by a human"
+required = true
+
+[[tools.params]]
+name = "reason"
+type = "string"
+description = "Why the KB update is needed"
+required = true
+
+[[tools.params]]
+name = "evidence"
+type = "object"
+description = "JSON object with supporting evidence"
+required = false
+default = {}
+
+[[tools]]
+name = "ensure_support_thread"
+description = "Create or fetch a support thread for a Telegram user and chat pair"
+executor = "shell"
+command = """python3 /opt/agent/workspace/fitmentor-agent/scripts/opencrabs_kb_bridge.py ensure_support_thread <<'EOF'
+{"telegram_user_id":"{{telegram_user_id}}","telegram_chat_id":"{{telegram_chat_id}}","preferred_language":"{{preferred_language}}"}
+EOF"""
+timeout_secs = 15
+requires_approval = false
+enabled = true
+
+[[tools.params]]
+name = "telegram_user_id"
+type = "string"
+description = "Telegram user id"
+required = true
+
+[[tools.params]]
+name = "telegram_chat_id"
+type = "string"
+description = "Telegram chat id"
+required = true
+
+[[tools.params]]
+name = "preferred_language"
+type = "string"
+description = "Preferred thread language when already known: ru or en"
+required = false
+default = "ru"
+
+[[tools]]
+name = "log_support_message"
+description = "Log a support conversation message with optional retrieval context"
+executor = "shell"
+command = """python3 /opt/agent/workspace/fitmentor-agent/scripts/opencrabs_kb_bridge.py log_support_message <<'EOF'
+{"thread_id":"{{thread_id}}","role":"{{role}}","message_text":"{{message_text}}","retrieval_context":{{retrieval_context}},"preferred_language":"{{preferred_language}}"}
+EOF"""
+timeout_secs = 15
+requires_approval = false
+enabled = true
+
+[[tools.params]]
+name = "thread_id"
+type = "string"
+description = "Support thread id"
+required = true
+
+[[tools.params]]
+name = "role"
+type = "string"
+description = "One of: user, assistant, system"
+required = true
+
+[[tools.params]]
+name = "message_text"
+type = "string"
+description = "Message text to log"
+required = true
+
+[[tools.params]]
+name = "retrieval_context"
+type = "array"
+description = "JSON array with retrieval metadata used for the answer"
+required = false
+default = []
+
+[[tools.params]]
+name = "preferred_language"
+type = "string"
+description = "Preferred message language when already known: ru or en"
+required = false
+default = "ru"
+
+[[tools]]
+name = "telegram_get_me"
+description = "Return information about the authenticated Telegram real-user account"
+executor = "shell"
+command = """env PYTHONPATH=/opt/agent/workspace/fitmentor-agent /opt/agent/workspace/fitmentor-agent/.venv/bin/python /opt/agent/workspace/fitmentor-agent/scripts/opencrabs_telegram_bridge.py telegram_get_me <<'EOF'
+{}
+EOF"""
+timeout_secs = 20
+requires_approval = false
+enabled = true
+
+[[tools]]
+name = "telegram_get_messages"
+description = "Fetch recent Telegram messages for a peer, dialog, channel, or chat"
+executor = "shell"
+command = """env PYTHONPATH=/opt/agent/workspace/fitmentor-agent /opt/agent/workspace/fitmentor-agent/.venv/bin/python /opt/agent/workspace/fitmentor-agent/scripts/opencrabs_telegram_bridge.py telegram_get_messages <<'EOF'
+{"peer":"{{peer}}","limit":{{limit}}}
+EOF"""
+timeout_secs = 30
+requires_approval = false
+enabled = true
+
+[[tools.params]]
+name = "peer"
+type = "string"
+description = "Telegram peer identifier, username, phone, or special value like me"
+required = true
+
+[[tools.params]]
+name = "limit"
+type = "integer"
+description = "Maximum number of messages to fetch"
+required = false
+default = 20
+
+[[tools]]
+name = "telegram_send_message"
+description = "Send a Telegram message from the authenticated real-user account"
+executor = "shell"
+command = """env PYTHONPATH=/opt/agent/workspace/fitmentor-agent /opt/agent/workspace/fitmentor-agent/.venv/bin/python /opt/agent/workspace/fitmentor-agent/scripts/opencrabs_telegram_bridge.py telegram_send_message <<'EOF'
+{"peer":"{{peer}}","text":"{{text}}"}
+EOF"""
+timeout_secs = 30
+requires_approval = true
+enabled = true
+
+[[tools.params]]
+name = "peer"
+type = "string"
+description = "Telegram peer identifier or username"
+required = true
+
+[[tools.params]]
+name = "text"
+type = "string"
+description = "Message text to send"
+required = true
+
+[[tools]]
+name = "telegram_reply"
+description = "Reply to an existing Telegram message from the authenticated real-user account"
+executor = "shell"
+command = """env PYTHONPATH=/opt/agent/workspace/fitmentor-agent /opt/agent/workspace/fitmentor-agent/.venv/bin/python /opt/agent/workspace/fitmentor-agent/scripts/opencrabs_telegram_bridge.py telegram_reply <<'EOF'
+{"peer":"{{peer}}","reply_to_msg_id":{{reply_to_msg_id}},"text":"{{text}}"}
+EOF"""
+timeout_secs = 30
+requires_approval = true
+enabled = true
+
+[[tools.params]]
+name = "peer"
+type = "string"
+description = "Telegram peer identifier or username"
+required = true
+
+[[tools.params]]
+name = "reply_to_msg_id"
+type = "integer"
+description = "Telegram message id to reply to"
+required = true
+
+[[tools.params]]
+name = "text"
+type = "string"
+description = "Reply text"
+required = true
+
+[[tools]]
+name = "telegram_mark_read"
+description = "Mark Telegram messages as read for a peer"
+executor = "shell"
+command = """env PYTHONPATH=/opt/agent/workspace/fitmentor-agent /opt/agent/workspace/fitmentor-agent/.venv/bin/python /opt/agent/workspace/fitmentor-agent/scripts/opencrabs_telegram_bridge.py telegram_mark_read <<'EOF'
+{"peer":"{{peer}}","max_id":{{max_id}},"clear_mentions":{{clear_mentions}}}
+EOF"""
+timeout_secs = 20
+requires_approval = false
+enabled = true
+
+[[tools.params]]
+name = "peer"
+type = "string"
+description = "Telegram peer identifier or username"
+required = true
+
+[[tools.params]]
+name = "max_id"
+type = "integer"
+description = "Mark read up to this message id"
+required = false
+default = 0
+
+[[tools.params]]
+name = "clear_mentions"
+type = "boolean"
+description = "Clear mention badge while acknowledging reads"
+required = false
+default = true
+
+[[tools]]
+name = "telegram_get_channel_posts"
+description = "Fetch recent Telegram channel posts for parsing and partnership research"
+executor = "shell"
+command = """env PYTHONPATH=/opt/agent/workspace/fitmentor-agent /opt/agent/workspace/fitmentor-agent/.venv/bin/python /opt/agent/workspace/fitmentor-agent/scripts/opencrabs_telegram_bridge.py telegram_get_channel_posts <<'EOF'
+{"peer":"{{peer}}","limit":{{limit}}}
+EOF"""
+timeout_secs = 30
+requires_approval = false
+enabled = true
+
+[[tools.params]]
+name = "peer"
+type = "string"
+description = "Telegram channel username or id"
+required = true
+
+[[tools.params]]
+name = "limit"
+type = "integer"
+description = "Maximum number of posts to fetch"
+required = false
+default = 20
