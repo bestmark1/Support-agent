@@ -59,4 +59,29 @@ class SupportFlowSmokeTest(unittest.TestCase):
     def test_payment_context_keeps_payment_oriented_reply(self) -> None:
         reply_text, confident = self.support_flow.build_reply("Оплата не прошла.", "ru", [])
         self.assertIn("дату попытки оплаты", reply_text)
+        self.assertIn("что делать дальше", reply_text)
+        self.assertFalse(confident)
+
+    def test_premium_entitlement_reply_uses_human_wording(self) -> None:
+        reply_text, confident = self.support_flow.build_reply(
+            "После оплаты Premium у меня остался старый лимит AI-сообщений. Что делать?",
+            "ru",
+            [],
+            {"diagnosis": "subscription_active"},
+        )
+        self.assertIn("Premium уже активен", reply_text)
+        self.assertIn("проверим это вручную", reply_text)
+        self.assertNotIn("Premium-прав", reply_text)
+        self.assertFalse(confident)
+
+    def test_subscription_activation_missing_access_reply_is_clearer(self) -> None:
+        reply_text, confident = self.support_flow.build_reply(
+            "Оплатил, но подписка не активировалась",
+            "ru",
+            [],
+            {"diagnosis": "payment_confirmed_but_access_missing"},
+        )
+        self.assertIn("платёж подтверждён", reply_text)
+        self.assertIn("доступ ещё не обновился", reply_text)
+        self.assertIn("проверим это вручную", reply_text)
         self.assertFalse(confident)

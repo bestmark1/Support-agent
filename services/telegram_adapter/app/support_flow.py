@@ -1685,11 +1685,11 @@ def build_reply(
         if diagnosis == "payment_confirmed_but_access_missing":
             return (
                 (
-                    "I checked the status and found a confirmed payment, but access has not been applied yet. This needs manual support handling on our side. Please send your payment date and amount so support can finish the activation."
+                    "I checked the status: the payment is confirmed, but access has not updated yet. We need to check this manually on our side. Please send the payment date and amount so support can finish the activation."
                 )
                 if language == "en"
                 else (
-                    "Я проверил статус и вижу подтверждённый платёж, но доступ ещё не применился. Здесь нужна ручная проверка с нашей стороны. Пришлите, пожалуйста, дату платежа и сумму, чтобы поддержка завершила активацию."
+                    "Я проверил статус: платёж подтверждён, но доступ ещё не обновился. Мы проверим это вручную со своей стороны. Пришлите, пожалуйста, дату платежа и сумму, чтобы поддержка завершила активацию."
                 ),
                 False,
             )
@@ -1717,7 +1717,7 @@ def build_reply(
             )
         if language == "en":
             return (
-                "Understood. If payment succeeded but the subscription did not activate, please send your Telegram account, payment date, amount, and any payment confirmation or receipt. Support will verify the payment and activation manually.",
+                "Understood. If payment succeeded but the subscription did not activate, please send your Telegram account, payment date, amount, and any payment confirmation. Support will check the payment and activation manually.",
                 False,
             )
         return (
@@ -1730,11 +1730,11 @@ def build_reply(
         if diagnosis in {"payment_confirmed_and_access_granted", "subscription_active"}:
             return (
                 (
-                    "I checked the status. Premium access is already active for this Telegram account, but AI limits or Premium features may not have refreshed correctly yet. This case needs manual verification of the Premium entitlement update on our side."
+                    "I checked the status: Premium is already active for this Telegram account, but the limits or Premium features may not have updated yet. We need to check this manually on our side."
                 )
                 if language == "en"
                 else (
-                    "Я проверил статус. Для этого Telegram-аккаунта Premium уже активен, но лимиты AI или Premium-функции могли обновиться некорректно. Этот кейс требует ручной проверки обновления Premium-прав с нашей стороны."
+                    "Я проверил статус: для этого Telegram-аккаунта Premium уже активен, но лимиты или Premium-функции могли ещё не обновиться. Мы проверим это вручную со своей стороны."
                 ),
                 False,
             )
@@ -1762,11 +1762,11 @@ def build_reply(
             )
         return (
             (
-                "Understood. If Premium was paid but limits or Premium features did not update, please send your Telegram account, payment date, amount, and describe exactly which limit or feature is still unavailable. Support will verify the payment and entitlement update."
+                "Understood. If Premium was paid but the limits or Premium features did not update, please send your Telegram account, payment date, amount, and tell us which limit or feature is still unavailable. Support will check the payment and the access update."
             )
             if language == "en"
             else (
-                "Понял. Если Premium оплачен, но лимиты или Premium-функции не обновились, пришлите, пожалуйста, ваш Telegram-аккаунт, дату платежа, сумму и уточните, какой именно лимит или функция всё ещё недоступны. Поддержка проверит оплату и обновление прав."
+                "Понял. Если Premium оплачен, но лимиты или Premium-функции не обновились, пришлите, пожалуйста, ваш Telegram-аккаунт, дату платежа, сумму и уточните, какой именно лимит или функция всё ещё недоступны. Поддержка проверит оплату и обновление доступа."
             ),
             False,
         )
@@ -1774,11 +1774,11 @@ def build_reply(
     if _is_payment_failed(normalized_text, language):
         return (
             (
-                "If payment does not go through, please send the payment date, amount, payment method, and the exact error if you saw one. Support will check what happened and suggest the next step."
+                "If payment does not go through, please send the payment date, amount, payment method, and the exact error if you saw one. Support will check what happened and tell you the next step."
             )
             if language == "en"
             else (
-                "Если оплата не проходит, пришлите, пожалуйста, дату попытки оплаты, сумму, способ оплаты и точный текст ошибки, если он был. Поддержка проверит ситуацию и подскажет следующий шаг."
+                "Если оплата не проходит, пришлите, пожалуйста, дату попытки оплаты, сумму, способ оплаты и точный текст ошибки, если он был. Поддержка проверит ситуацию и подскажет, что делать дальше."
             ),
             False,
         )
