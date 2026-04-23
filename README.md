@@ -100,3 +100,13 @@ This project uses a lightweight task workflow for any non-trivial change.
 - `docs/FORKFLOW-LIGHT.md`: project workflow and release gates
 - `docs/tasks/TEMPLATE.md`: task artifact template
 - `docs/tasks/2026-04-23-repo-refresh-and-forkflow-adoption.md`: first recorded task using the workflow
+
+## CI
+
+GitHub Actions runs the smoke checks on every `push` and `pull_request`.
+
+Local equivalent:
+
+```bash
+make test-smoke
+```
