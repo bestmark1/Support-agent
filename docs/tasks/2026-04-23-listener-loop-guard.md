@@ -66,14 +66,19 @@ Fix shape:
 
 ## Verification
 
-- Status: local verification passed; deploy verification pending
+- Status: deployed; direct inbound smoke still pending
 - Evidence:
   - live journal captured the reply loop and blank `listener_error`
   - self account id was confirmed directly on the VPS
   - `python3 -m compileall scripts/support_listener.py` passed
   - local guard smoke passed for self-authored, outgoing, and real inbound cases
+  - fix commit: `a5fea45`
+  - deployed file: `/opt/agent/workspace/fitmentor-agent/scripts/support_listener.py`
+  - service restart time: `2026-04-23 08:10:53 UTC`
+  - post-restart journal shows `listener_started` and no immediate repeated `listener_error`
+  - direct self-message smoke from a second Telethon process was blocked by `sqlite3.OperationalError: database is locked`
 
 ## Follow-Ups
 
 - if another entrypoint can feed self-authored messages into `process_support_message`, add the same guard there
-- record the post-deploy smoke evidence here
+- run one real inbound Telegram smoke and record the result here
