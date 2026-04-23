@@ -34,7 +34,7 @@ This makes the live support loop unsafe.
 ## Acceptance Checks
 
 - [x] self-authored or outgoing listener events are ignored
-- [ ] listener still processes real inbound user messages
+- [x] listener still processes real inbound user messages
 - [x] listener errors include exception type and traceback
 - [x] syntax verification passes
 
@@ -66,7 +66,7 @@ Fix shape:
 
 ## Verification
 
-- Status: deployed; direct inbound smoke still pending
+- Status: complete
 - Evidence:
   - live journal captured the reply loop and blank `listener_error`
   - self account id was confirmed directly on the VPS
@@ -76,9 +76,11 @@ Fix shape:
   - deployed file: `/opt/agent/workspace/fitmentor-agent/scripts/support_listener.py`
   - service restart time: `2026-04-23 08:10:53 UTC`
   - post-restart journal shows `listener_started` and no immediate repeated `listener_error`
+  - real inbound smoke at `2026-04-23T08:21:08+00:00` produced exactly one support handling event for `message_id=1564`
+  - that smoke produced exactly one outbound reply `message_id=1565`, with no follow-up loop
   - direct self-message smoke from a second Telethon process was blocked by `sqlite3.OperationalError: database is locked`
 
 ## Follow-Ups
 
 - if another entrypoint can feed self-authored messages into `process_support_message`, add the same guard there
-- run one real inbound Telegram smoke and record the result here
+- monitor the next few live support events for hidden duplicate-processing paths

@@ -28,7 +28,7 @@ The support flow already had greeting, thanks, and goodbye branches, but they re
 - [x] `Привет.` returns the greeting branch
 - [x] `Спасибо!` returns the thanks branch
 - [x] `Bye.` returns the goodbye branch
-- [ ] deployed listener uses the updated support flow
+- [x] deployed listener uses the updated support flow
 
 ## Implementation Notes
 
@@ -51,10 +51,15 @@ Fix shape:
 
 ## Verification
 
-- Status: local verification passed; deploy pending
+- Status: complete
 - Evidence:
   - `python3 -m compileall services/telegram_adapter/app/support_flow.py` passed
   - isolated function check passed for `Привет.`, `Спасибо!`, and `Bye.`
+  - fix commit: `b35f4d7`
+  - deployed file: `/opt/agent/workspace/fitmentor-agent/services/telegram_adapter/app/support_flow.py`
+  - service restart time: `2026-04-23 08:23:49 UTC`
+  - real inbound smoke at `2026-04-23T08:24:32+00:00` produced reply: `Здравствуйте. Чем могу помочь вам по FitMentor?`
+  - `support-summary` marks the thread as `resolved` with `resolution_note = Automatically resolved by support flow.`
 
 ## Follow-Ups
 
