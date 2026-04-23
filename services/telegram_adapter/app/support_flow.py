@@ -534,13 +534,34 @@ def _is_operator_premium_request(text: str) -> bool:
             "premium-кейс",
             "premium кейс",
             "premium case",
-            "premium",
             "priority support",
-            "priority",
-            "премиум",
-            "приоритет",
+            "priority support кейс",
+            "priority support cases",
+            "премиум-кейс",
+            "премиум кейс",
+            "приоритетный кейс",
+            "приоритетные кейсы",
             "платные пользователи",
             "платные кейсы",
+        )
+    )
+
+
+def _is_owner_support_like_request(text: str, language: str) -> bool:
+    normalized = _normalized(text)
+    if not normalized:
+        return False
+    return any(
+        (
+            _is_payment_failed(normalized, language),
+            _is_duplicate_charge(normalized, language),
+            _is_refund_request(normalized, language),
+            _is_how_to_subscribe(normalized, language),
+            _is_how_to_cancel(normalized, language),
+            _is_subscription_status_check(normalized, language),
+            _is_subscription_activation_issue(text, language),
+            _is_premium_entitlement_issue(text, language),
+            _is_human_support_request(normalized, language),
         )
     )
 
@@ -2173,13 +2194,19 @@ async def process_support_message(
     chat_id = getattr(message, "chat_id", None)
     is_owner = settings.is_trusted_operator(sender_id)
     support_test_mode, effective_text = extract_owner_support_test(message_text)
+    owner_language = normalize_language(None) or detect_language(effective_text or message_text)
+    owner_support_like = bool(
+        is_owner
+        and not support_test_mode
+        and _is_owner_support_like_request(effective_text, owner_language)
+    )
     is_test_traffic = bool(support_test_mode or settings.is_test_user(sender_id))
 
     owner_review_result = await maybe_handle_owner_candidate_review(tg_client, message)
     if owner_review_result is not None:
         return owner_review_result
 
-    if is_owner and not support_test_mode:
+    if is_owner and not support_test_mode and not owner_support_like:
         operator_result = await maybe_handle_operator_request(tg_client, message)
         if operator_result is not None:
             return operator_result

@@ -101,3 +101,16 @@ class SupportFlowSmokeTest(unittest.TestCase):
             support_check={"diagnosis": "subscription_active"},
         )
         self.assertFalse(should_create)
+
+    def test_premium_issue_is_not_operator_summary_intent(self) -> None:
+        is_operator = self.support_flow._is_operator_premium_request(
+            "После оплаты Premium у меня остался старый лимит AI-сообщений. Что делать?"
+        )
+        self.assertFalse(is_operator)
+
+    def test_owner_support_like_request_detects_subscription_issue(self) -> None:
+        is_support_like = self.support_flow._is_owner_support_like_request(
+            "У меня Premium, но лимит AI-сообщений не обновился после оплаты",
+            "ru",
+        )
+        self.assertTrue(is_support_like)
