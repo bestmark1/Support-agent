@@ -35,7 +35,7 @@ This drift makes future changes unsafe because implementation, review, and deplo
 - [x] workflow document exists in `docs/FORKFLOW-LIGHT.md`
 - [x] task template exists in `docs/tasks/TEMPLATE.md`
 - [x] this task file records the baseline refresh
-- [ ] repository baseline can be committed and pushed cleanly
+- [x] repository baseline can be committed and pushed cleanly
 
 ## Implementation Notes
 
@@ -73,7 +73,7 @@ It updates the repository baseline so future implementation can happen against t
 
 ## Verification
 
-- Status: local sync and pre-commit verification passed; push pending
+- Status: complete
 - Evidence:
   - live workspace staged locally before sync
   - sync excluded `.env`, `.secrets`, `.venv`, session artifacts, and generated files
@@ -81,6 +81,8 @@ It updates the repository baseline so future implementation can happen against t
   - `git diff --check` passed
   - `python3 -m compileall packages services scripts` passed
   - tracked tree contains no `.env`, `.secrets`, or `*.session` files
+  - baseline commit: `8cc2747`
+  - pushed to `origin/main`
 
 ## Follow-Ups
 
