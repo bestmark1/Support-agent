@@ -51,6 +51,11 @@ def _normalized(text: str) -> str:
     return " ".join(text.strip().lower().split())
 
 
+def _normalized_simple_phrase(text: str) -> str:
+    normalized = _normalized(text)
+    return normalized.strip(".,!?;:()[]{}\"'")
+
+
 def _contains_any(text: str, tokens: tuple[str, ...]) -> bool:
     return any(token in text for token in tokens)
 
@@ -198,12 +203,14 @@ def _is_human_support_request(text: str, language: str) -> bool:
 
 
 def _is_thanks(text: str, language: str) -> bool:
+    text = _normalized_simple_phrase(text)
     if language == "en":
         return text in {"thanks", "thank you", "thx"}
     return text in {"спасибо", "благодарю", "спс"}
 
 
 def _is_goodbye(text: str, language: str) -> bool:
+    text = _normalized_simple_phrase(text)
     if language == "en":
         return text in {"bye", "goodbye", "see you"}
     return text in {"пока", "до свидания", "всего доброго"}
@@ -1609,13 +1616,14 @@ def build_reply(
     support_check: dict[str, Any] | None = None,
 ) -> tuple[str, bool]:
     normalized_text = _normalized(user_text)
+    normalized_simple_text = _normalized_simple_phrase(user_text)
     if normalized_text:
-        if language == "en" and normalized_text in EN_GREETINGS:
+        if language == "en" and normalized_simple_text in EN_GREETINGS:
             return (
                 "Hello. How can I help you with FitMentor today?",
                 True,
             )
-        if language == "ru" and normalized_text in RU_GREETINGS:
+        if language == "ru" and normalized_simple_text in RU_GREETINGS:
             return (
                 "Здравствуйте. Чем могу помочь вам по FitMentor?",
                 True,
