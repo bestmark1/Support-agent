@@ -327,6 +327,21 @@ def _is_priority_support(support_check: dict[str, Any] | None) -> bool:
     return effective_tier == "premium" or current_tier == "premium"
 
 
+def _is_payment_or_access_context(text: str, language: str) -> bool:
+    normalized = _normalized(text)
+    return (
+        _is_payment_failed(normalized, language)
+        or _is_duplicate_charge(normalized, language)
+        or _is_refund_request(normalized, language)
+        or _is_how_to_subscribe(normalized, language)
+        or _is_how_to_cancel(normalized, language)
+        or _is_subscription_status_check(normalized, language)
+        or _is_subscription_activation_issue(text, language)
+        or _is_premium_entitlement_issue(text, language)
+        or _is_human_support_request(normalized, language)
+    )
+
+
 def should_create_candidate_knowledge(
     *,
     user_text: str,
@@ -1885,14 +1900,25 @@ def build_reply(
         top = kb_items[0]
         return str(top["content"]).strip(), True
 
+    if _is_payment_or_access_context(user_text, language):
+        if language == "en":
+            return (
+                "I could not find a clear approved answer yet. Please send your Telegram account, payment date, amount, and any payment confirmation details so support can review this manually.",
+                False,
+            )
+        return (
+            "Я пока не нашёл точного утверждённого ответа. Пришлите, пожалуйста, ваш Telegram-аккаунт, дату платежа, сумму и, если есть, подтверждение оплаты, чтобы поддержка могла проверить это вручную.",
+            False,
+        )
+
     if language == "en":
         return (
-            "I could not find a clear approved answer yet. Please send your Telegram account, payment date, amount, and any payment confirmation details so support can review this manually.",
+            "I do not yet see a clear approved answer for this case. Please briefly describe what exactly happened: payment, subscription, access to a feature, or another issue. If this is about payment or access, include your Telegram account and any relevant payment details.",
             False,
         )
 
     return (
-        "Я пока не нашёл точного утверждённого ответа. Пришлите, пожалуйста, ваш Telegram-аккаунт, дату платежа, сумму и, если есть, подтверждение оплаты, чтобы поддержка могла проверить это вручную.",
+        "Я пока не вижу точного утверждённого ответа для этого случая. Кратко уточните, что именно произошло: это вопрос про оплату, подписку, доступ к функции или другой сценарий. Если вопрос связан с оплатой или доступом, сразу укажите Telegram-аккаунт и данные платежа, если они есть.",
         False,
     )
 

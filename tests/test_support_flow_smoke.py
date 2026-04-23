@@ -49,3 +49,14 @@ class SupportFlowSmokeTest(unittest.TestCase):
         reply_text, confident = self.support_flow.build_reply("Bye.", "en", [])
         self.assertEqual(reply_text, "Goodbye.")
         self.assertTrue(confident)
+
+    def test_generic_unknown_case_uses_neutral_fallback(self) -> None:
+        reply_text, confident = self.support_flow.build_reply("У меня другой вопрос.", "ru", [])
+        self.assertIn("Кратко уточните, что именно произошло", reply_text)
+        self.assertNotIn("дату платежа", reply_text)
+        self.assertFalse(confident)
+
+    def test_payment_context_keeps_payment_oriented_reply(self) -> None:
+        reply_text, confident = self.support_flow.build_reply("Оплата не прошла.", "ru", [])
+        self.assertIn("дату попытки оплаты", reply_text)
+        self.assertFalse(confident)
