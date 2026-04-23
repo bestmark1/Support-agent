@@ -1766,11 +1766,11 @@ def build_reply(
         if diagnosis in {"payment_confirmed_and_access_granted", "subscription_active"}:
             return (
                 (
-                    "I checked the status: Premium is already active for this Telegram account, but the limits or Premium features may not have updated yet. We need to check this manually on our side."
+                    "I checked the status: Premium is already active for this Telegram account. Please tell me which exact limit or feature did not update after payment, and we will check it on our side."
                 )
                 if language == "en"
                 else (
-                    "Я проверил статус: для этого Telegram-аккаунта Premium уже активен, но лимиты или Premium-функции могли ещё не обновиться. Мы проверим это вручную со своей стороны."
+                    "Я проверил статус: для этого Telegram-аккаунта Premium уже активен. Напишите, пожалуйста, какой именно лимит или функция не обновились после оплаты, и мы проверим это со своей стороны."
                 ),
                 False,
             )

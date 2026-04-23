@@ -66,6 +66,8 @@ The goal is:
   - `python3 -m compileall services/telegram_adapter/app/support_flow.py tests/test_support_flow_smoke.py` passed
   - `premium_entitlement` wording no longer uses `Premium-прав`
   - payment/access manual-check replies now use clearer support phrasing
+  - refined `premium_entitlement` active-Premium reply to ask which exact limit or feature did not update after payment
+  - smoke test now checks for the clarification prompt instead of a generic manual-review sentence
 
 ## Follow-Ups
 

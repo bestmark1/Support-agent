@@ -76,7 +76,7 @@ class SupportFlowSmokeTest(unittest.TestCase):
             {"diagnosis": "subscription_active"},
         )
         self.assertIn("Premium уже активен", reply_text)
-        self.assertIn("проверим это вручную", reply_text)
+        self.assertIn("какой именно лимит или функция не обновились", reply_text)
         self.assertNotIn("Premium-прав", reply_text)
         self.assertFalse(confident)
 
